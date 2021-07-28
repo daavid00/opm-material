@@ -23,7 +23,7 @@
 /*!
  * \file
  *
- * \brief Modules for the ModularFluidState which represent saturation.
+ * \brief Modules for the ModularFluidState which represent saturation and wa.
  */
 #ifndef OPM_FLUID_STATE_SATURATION_MODULES_HPP
 #define OPM_FLUID_STATE_SATURATION_MODULES_HPP
@@ -37,7 +37,7 @@ namespace Opm {
 
 /*!
  * \brief Module for the modular fluid state which stores the
- *       saturations explicitly.
+ *       saturations and wettability alteration explicitly.
  */
 template <class Scalar,
           unsigned numPhases,
@@ -46,7 +46,8 @@ class FluidStateExplicitSaturationModule
 {
 public:
     FluidStateExplicitSaturationModule()
-    { Valgrind::SetUndefined(saturation_); }
+    { Valgrind::SetUndefined(saturation_);
+      Valgrind::SetUndefined(wa_);}
 
     /*!
      * \brief The saturation of a fluid phase [-]
@@ -61,6 +62,18 @@ public:
     { saturation_[phaseIdx] = value; }
 
     /*!
+     * \brief The wettability alteration of a fluid phase [-]
+     */
+    const Scalar& wa() const
+    { return wa_; }
+
+    /*!
+     * \brief Set the wettability alteration of a phase [-]
+     */
+    void setWa(const Scalar& value)
+    { wa_ = value; }
+
+    /*!
      * \brief Retrieve all parameters from an arbitrary fluid
      *        state.
      */
@@ -70,6 +83,7 @@ public:
         for (unsigned phaseIdx = 0; phaseIdx < numPhases; ++phaseIdx) {
             saturation_[phaseIdx] = Opm::decay<Scalar>(fs.saturation(phaseIdx));
         }
+        wa_ = Opm::decay<Scalar>(fs.wa());
     }
 
     /*!
@@ -83,10 +97,12 @@ public:
     void checkDefined() const
     {
         Valgrind::CheckDefined(saturation_);
+        Valgrind::CheckDefined(wa_);
     }
 
 protected:
     Scalar saturation_[numPhases];
+    Scalar wa_;
 };
 
 /*!
@@ -105,6 +121,12 @@ public:
      */
     const Scalar& saturation(unsigned /* phaseIdx */) const
     { throw std::runtime_error("Saturation is not provided by this fluid state"); }
+
+    /*!
+     * \brief The saturation of a fluid phase [-]
+     */
+    const Scalar& wa() const
+    { throw std::runtime_error("Wettability is not provided by this fluid state"); }
 
     /*!
      * \brief Retrieve all parameters from an arbitrary fluid

@@ -196,6 +196,13 @@ public:
         -> decltype(std::declval<FluidState>().viscosity(phaseIdx))
     { return fs_->viscosity(phaseIdx); }
 
+    /*!
+    * \brief The wettability alteration of a fluid phase [-]
+    */
+    auto wa() const
+       -> decltype(std::declval<FluidState>().wa())
+    { return fs_->wa(); }
+
 
     /*****************************************************
      * Setter methods. Note that these are not part of the
